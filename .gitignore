@@ -1,4 +1,31 @@
+# Local .terraform directory (contains provider binaries and modules)
+.terraform/
+
+# .tfstate files (Contains sensitive data and infrastructure secrets)
+*.tfstate
+*.tfstate.*
+
+# Crash logs
+crash.log
+crash.*.log
+
+# Exclude all .tfvars files by default (they often contain secrets)
 *.tfvars
+*.tfvars.json
+
+# Override: Allow sample/example var files to be committed
+!*.example.tfvars
+!*.sample.tfvars
+
+# Variables and secrets (standard naming conventions)
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Include CLI configuration files
+.terraformrc
+terraform.rc
 
 # Build Folders (you can keep bin if you'd like, to store dlls and pdbs)
 [Bb]in/
