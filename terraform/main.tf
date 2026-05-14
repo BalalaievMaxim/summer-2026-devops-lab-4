@@ -35,10 +35,23 @@ resource "libvirt_volume" "db_disk" {
   size           = 10737418240
 }
 
-# генерація cloud-init конфігурації
-resource "libvirt_cloudinit_disk" "commoninit" {
-  name      = "commoninit.iso"
-  user_data = templatefile("${path.module}/cloud_init.cfg", { ssh_key = var.ssh_public_key })
+# генерація cloud-init конфігурації для worker
+resource "libvirt_cloudinit_disk" "worker_init" {
+  name      = "worker_init.iso"
+  user_data = templatefile("${path.module}/cloud_init.cfg", { 
+    ssh_key  = var.ssh_public_key,
+    hostname = "worker"
+  })
+  pool      = "default"
+}
+
+# генерація cloud-init конфігурації для db
+resource "libvirt_cloudinit_disk" "db_init" {
+  name      = "db_init.iso"
+  user_data = templatefile("${path.module}/cloud_init.cfg", { 
+    ssh_key  = var.ssh_public_key,
+    hostname = "db"
+  })
   pool      = "default"
 }
 
@@ -48,7 +61,7 @@ resource "libvirt_domain" "worker" {
   memory = "2048"
   vcpu   = 2
 
-  cloudinit = libvirt_cloudinit_disk.commoninit.id
+  cloudinit = libvirt_cloudinit_disk.worker_init.id
 
   network_interface {
     network_name   = "default"
@@ -72,7 +85,7 @@ resource "libvirt_domain" "db" {
   memory = "2048"
   vcpu   = 2
 
-  cloudinit = libvirt_cloudinit_disk.commoninit.id
+  cloudinit = libvirt_cloudinit_disk.db_init.id
 
   network_interface {
     network_name   = "default"
