@@ -1,0 +1,40 @@
+---
+- name: Update apt cache
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: Create student group
+  group:
+    name: student
+    state: present
+
+- name: Create student directory
+  file:
+    path: /home/student
+    state: directory
+    owner: root
+    group: student
+    mode: '0755'
+
+- name: Create gradebook file
+  copy:
+    content: "3\n"
+    dest: /home/student/gradebook
+    owner: root
+    group: student
+    mode: '0644'
+
+- name: Create teacher user
+  user:
+    name: teacher
+    shell: /bin/bash
+    password: "{{ '12345678' | password_hash('sha512') }}"
+    state: present
+
+- name: Add teacher user to sudoers (with password prompt)
+  copy:
+    content: "teacher ALL=(ALL:ALL) ALL"
+    dest: /etc/sudoers.d/teacher
+    mode: '0440'
+    validate: '/usr/sbin/visudo -cf %s'

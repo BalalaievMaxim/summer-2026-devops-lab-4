@@ -1,0 +1,43 @@
+---
+- name: Install PostgreSQL and related packages
+  apt:
+    name:
+      - postgresql
+      - postgresql-contrib
+      - python3-psycopg2
+    state: present
+
+- name: Set PostgreSQL to listen on all interfaces
+  lineinfile:
+    path: /etc/postgresql/16/main/postgresql.conf
+    regexp: "^#?listen_addresses\\s*="
+    line: "listen_addresses = '*'"
+  notify: Restart PostgreSQL
+
+- name: Configure PostgreSQL client authentication
+  blockinfile:
+    path: /etc/postgresql/16/main/pg_hba.conf
+    block: |
+      host    mywebappdb      postgres        {{ hostvars['worker']['ansible_host'] }}/32   md5
+      host    all             all             127.0.0.1/32            md5
+  notify: Restart PostgreSQL
+
+- name: Ensure PostgreSQL service is running and enabled
+  systemd:
+    name: postgresql
+    state: started
+    enabled: yes
+
+- name: Create PostgreSQL database
+  postgresql_db:
+    name: mywebappdb
+    login_user: postgres
+  become_user: postgres
+
+- name: Create PostgreSQL user with privileges
+  postgresql_user:
+    db: mywebappdb
+    name: postgres
+    password: "postgres_secure_password"
+    priv: "ALL"
+  become_user: postgres

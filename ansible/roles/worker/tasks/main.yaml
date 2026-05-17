@@ -1,0 +1,114 @@
+---
+- name: Add Microsoft package repository for .NET
+  apt_repository:
+    repo: 'ppa:dotnet/dotnet'
+    state: present
+
+- name: Install .NET Runtime and Nginx
+  apt:
+    name:
+      - dotnet-runtime-10.0
+      - nginx
+    state: present
+    update_cache: yes
+
+- name: Create app user for running the web application
+  user:
+    name: app
+    shell: /usr/sbin/nologin
+    system: yes
+    create_home: no
+
+- name: Create operator user
+  user:
+    name: operator
+    shell: /bin/bash
+    password: "{{ '12345678' | password_hash('sha512') }}"
+    state: present
+
+- name: Configure sudoers for operator user (passwordless for specific commands)
+  copy:
+    content: |
+      operator ALL=(ALL) NOPASSWD: /usr/bin/systemctl start mywebapp, /usr/bin/systemctl stop mywebapp, /usr/bin/systemctl restart mywebapp, /usr/bin/systemctl status mywebapp, /usr/bin/systemctl reload nginx
+    dest: /etc/sudoers.d/operator
+    mode: '0440'
+    validate: '/usr/sbin/visudo -cf %s'
+
+- name: Create necessary directories for the web application
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: app
+    group: app
+    mode: '0755'
+  loop:
+    - /var/www/mywebapp
+    - /etc/mywebapp
+
+- name: Generate application config file from template
+  template:
+    src: config.json.j2
+    dest: /etc/mywebapp/config.json
+    owner: app
+    group: app
+    mode: '0600'
+  notify: Restart MyWebApp
+
+- name: Copy published application files to the server
+  synchronize:
+    src: ../src/mywebapp/bin/Release/net10.0/publish/
+    dest: /var/www/mywebapp/
+    delete: yes
+  notify: Restart MyWebApp
+
+- name: Create Systemd service for .NET Web App
+  copy:
+    dest: /etc/systemd/system/mywebapp.service
+    content: |
+      [Unit]
+      Description=My Web App (.NET 10)
+      After=network.target
+
+      [Service]
+      WorkingDirectory=/var/www/mywebapp
+      ExecStart=/usr/bin/dotnet /var/www/mywebapp/mywebapp.dll
+      Restart=always
+      RestartSec=10
+      KillSignal=SIGINT
+      SyslogIdentifier=mywebapp
+      User=app
+      Environment=ASPNETCORE_ENVIRONMENT=Production
+      Environment=ASPNETCORE_URLS=http://127.0.0.1:8000
+
+      [Install]
+      WantedBy=multi-user.target
+    mode: '0644'
+  notify: Reload Systemd
+
+- name: Ensure the application service is enabled and running
+  systemd:
+    name: mywebapp
+    state: started
+    enabled: yes
+
+- name: Configure Nginx Reverse Proxy
+  template:
+    src: nginx.conf.j2
+    dest: /etc/nginx/sites-available/mywebapp
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Reload Nginx
+
+- name: Activate Nginx configuration by creating a symbolic link
+  file:
+    src: /etc/nginx/sites-available/mywebapp
+    dest: /etc/nginx/sites-enabled/mywebapp
+    state: link
+  notify: Reload Nginx
+
+- name: Delete default Nginx configuration to avoid conflicts
+  file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
+  notify: Reload Nginx
