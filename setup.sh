@@ -2,7 +2,7 @@
 set -e
 
 # Встановлення пакетів
-sudo apt-get install -y gnupg software-properties-common curl wget qemu-system-x86 libvirt-daemon-system libvirt-clients bridge-utils genisoimage dotnet-sdk-10.0
+sudo apt-get install -y gnupg software-properties-common curl wget qemu-system-x86 libvirt-daemon-system libvirt-clients bridge-utils genisoimage dotnet-sdk-10.0 util-linux-extra
 
 # Встановлення Terraform
 wget -O- https://apt.releases.hashicorp.com/gpg | gpg --dearmor | sudo tee /usr/share/keyrings/hashicorp-archive-keyring.gpg > /dev/null
@@ -22,6 +22,8 @@ sg libvirt -c "virsh pool-start default"
 sg libvirt -c "virsh pool-autostart default"
 sg libvirt -c "virsh net-start default"
 sg libvirt -c "virsh net-autostart default"
+
+exec newgrp libvirt
 
 echo "Setup completed successfully!"
 echo "You can now run Terraform and Ansible"
