@@ -9,7 +9,7 @@
   hosts: db
   become: true
   roles:
-    - database
+    - db
 
 - name: configure worker
   hosts: workers

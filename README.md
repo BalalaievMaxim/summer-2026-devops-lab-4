@@ -9,7 +9,7 @@
 
 Встановлення пакетів
 ```bash
-sudo apt-get install -y gnupg software-properties-common curl wget qemu-system-x86 libvirt-daemon-system libvirt-clients bridge-utils genisoimage
+sudo apt-get install -y gnupg software-properties-common curl wget qemu-system-x86 libvirt-daemon-system libvirt-clients bridge-utils genisoimage ansible-core
 ```
 
 Встановлення Terraform
