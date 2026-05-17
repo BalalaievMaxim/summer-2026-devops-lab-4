@@ -24,6 +24,8 @@ sudo apt-get update && sudo apt-get install terraform
 sudo virsh pool-define-as --name default --type dir --target /var/lib/libvirt/images
 sudo virsh pool-start default
 sudo virsh pool-autostart default
+sudo virsh net-start default
+sudo virsh net-autostart default
 ```
 
 <h3>Виконання</h3>
@@ -31,6 +33,6 @@ sudo virsh pool-autostart default
 ```bash
 cd terraform
 terraform init
-terraform apply
+sudo terraform apply
 ```
 За необхідності використовуйте флаг --auto-approve. Це має розгорнути 2 віртуальні машини (nested virtualization), а також налаштувати ansible/inventory.ini
