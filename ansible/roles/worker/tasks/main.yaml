@@ -10,7 +10,7 @@
 - name: Install .NET Runtime and Nginx
   apt:
     name:
-      - dotnet-runtime-10.0
+      - aspnetcore-runtime-10.0
       - nginx
     state: present
     update_cache: yes
