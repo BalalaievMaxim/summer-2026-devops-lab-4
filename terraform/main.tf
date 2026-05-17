@@ -103,6 +103,18 @@ resource "libvirt_domain" "db" {
   }
 }
 
+# генерація файлу інвентаря для Ansible
+resource "local_file" "ansible_inventory" {
+  filename = "${path.module}/../ansible/inventory.ini"
+  content  = <<EOT
+[workers]
+worker ansible_host=${libvirt_domain.worker.network_interface[0].addresses[0]} ansible_user=ansible
+
+[db]
+db ansible_host=${libvirt_domain.db.network_interface[0].addresses[0]} ansible_user=ansible
+EOT
+}
+
 # вивід IP адрес після створення
 output "worker_ip" {
   value = libvirt_domain.worker.network_interface[0].addresses[0]
