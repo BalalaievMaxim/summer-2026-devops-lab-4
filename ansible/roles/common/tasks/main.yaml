@@ -38,3 +38,20 @@
     dest: /etc/sudoers.d/teacher
     mode: '0440'
     validate: '/usr/sbin/visudo -cf %s'
+  
+- name: Allow SSH password authentication for teacher and operator
+  ansible.builtin.copy:
+    dest: /etc/ssh/sshd_config.d/99-password-auth.conf
+    content: |
+      Match User teacher,operator
+          PasswordAuthentication yes
+    owner: root
+    group: root
+    mode: '0644'
+  register: ssh_config_custom
+
+- name: Restart SSH service if config changed
+  ansible.builtin.systemd_service:
+    name: ssh
+    state: restarted
+  when: ssh_config_custom.changed

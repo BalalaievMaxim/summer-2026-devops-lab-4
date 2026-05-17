@@ -42,3 +42,15 @@ terraform init
 sudo terraform apply
 ```
 За необхідності використовуйте флаг --auto-approve. Це має розгорнути 2 віртуальні машини (nested virtualization), а також налаштувати ansible/inventory.ini
+
+
+<h3>Перевірка</h3>
+Прямий доступ до db ззовні має бути заблокований
+
+```bash
+sudo apt-get install -y postgresql-client
+cd terraform
+terraform output db_ip # скопіюйте IP-адресу
+psql -h <IP-адреса> -U postgres
+```
+Видає psql: error: connection to server at "192.168.122.128", port 5432 failed: FATAL:  no pg_hba.conf entry for host "192.168.122.1", user "postgres", database "mywebappdb"
