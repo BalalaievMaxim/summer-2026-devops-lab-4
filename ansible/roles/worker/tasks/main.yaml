@@ -55,14 +55,14 @@
     owner: app
     group: app
     mode: '0600'
-  notify: Restart MyWebApp
+  notify: Restart mywebapp
 
 - name: Copy published application files to the server
   synchronize:
     src: ../src/mywebapp/bin/Release/net10.0/publish/
     dest: /var/www/mywebapp/
     delete: yes
-  notify: Restart MyWebApp
+  notify: Restart mywebapp
 
 - name: Create Systemd service for .NET Web App
   copy:
