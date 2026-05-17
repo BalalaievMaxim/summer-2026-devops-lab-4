@@ -32,5 +32,5 @@ terraform apply
 Виконання Ansible
 ```bash
 cd ../ansible
-ansible-playbook -i inventory.ini main.yml
+ansible-playbook -i inventory.ini playbook.yaml
 ```
