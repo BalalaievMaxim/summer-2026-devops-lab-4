@@ -4,11 +4,30 @@ terraform {
       source  = "dmacvicar/libvirt"
       version = "~> 0.7.6"
     }
+    tls = {
+      source  = "hashicorp/tls"
+      version = "~> 4.0"
+    }
   }
 }
 
 provider "libvirt" {
   uri = "qemu:///system"
+}
+
+provider "tls" {}
+
+# автоматична генерація пари SSH ключів
+resource "tls_private_key" "ansible_key" {
+  algorithm = "RSA"
+  rsa_bits  = 4096
+}
+
+# збереження приватного ключа для ansible
+resource "local_sensitive_file" "ansible_private_key" {
+  content         = tls_private_key.ansible_key.private_key_pem
+  filename        = "${path.module}/../ansible/ansible_id_rsa"
+  file_permission = "0600"
 }
 
 # завантаження базового образу Ubuntu
@@ -39,7 +58,7 @@ resource "libvirt_volume" "db_disk" {
 resource "libvirt_cloudinit_disk" "worker_init" {
   name      = "worker_init.iso"
   user_data = templatefile("${path.module}/cloud_init.cfg", { 
-    ssh_key  = var.ssh_public_key,
+    ssh_key  = trimspace(tls_private_key.ansible_key.public_key_openssh),
     hostname = "worker"
   })
   pool      = "default"
@@ -49,7 +68,7 @@ resource "libvirt_cloudinit_disk" "worker_init" {
 resource "libvirt_cloudinit_disk" "db_init" {
   name      = "db_init.iso"
   user_data = templatefile("${path.module}/cloud_init.cfg", { 
-    ssh_key  = var.ssh_public_key,
+    ssh_key  = trimspace(tls_private_key.ansible_key.public_key_openssh),
     hostname = "db"
   })
   pool      = "default"
@@ -108,10 +127,10 @@ resource "local_file" "ansible_inventory" {
   filename = "${path.module}/../ansible/inventory.ini"
   content  = <<EOT
 [workers]
-worker ansible_host=${libvirt_domain.worker.network_interface[0].addresses[0]} ansible_user=ansible
+worker ansible_host=${libvirt_domain.worker.network_interface[0].addresses[0]} ansible_user=ansible ansible_ssh_private_key_file=ansible_id_rsa
 
 [db]
-db ansible_host=${libvirt_domain.db.network_interface[0].addresses[0]} ansible_user=ansible
+db ansible_host=${libvirt_domain.db.network_interface[0].addresses[0]} ansible_user=ansible ansible_ssh_private_key_file=ansible_id_rsa
 EOT
 }
 
