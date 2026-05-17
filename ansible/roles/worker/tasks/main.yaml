@@ -1,4 +1,12 @@
 ---
+- name: Publish .NET application locally
+  delegate_to: localhost
+  become: false
+  ansible.builtin.command:
+    cmd: dotnet publish -c Release -o ../src/mywebapp/publish_output
+    chdir: "{{ playbook_dir }}/../../src/mywebapp"
+  changed_when: true
+
 - name: Add Microsoft package repository for .NET
   apt_repository:
     repo: 'ppa:dotnet/dotnet'
