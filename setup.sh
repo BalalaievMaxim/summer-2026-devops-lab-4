@@ -1,3 +1,6 @@
+#!/bin/bash
+set -e
+
 # Встановлення пакетів
 sudo apt-get install -y gnupg software-properties-common curl wget qemu-system-x86 libvirt-daemon-system libvirt-clients bridge-utils genisoimage dotnet-sdk-10.0
 
