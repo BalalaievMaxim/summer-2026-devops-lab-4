@@ -3,6 +3,7 @@
   delegate_to: localhost
   become: false
   ansible.builtin.command:
+  # Використання command зумовлено тим, що Ansible не має вбудованого декларативного модуля для компіляції .NET-додатків
     chdir: "{{ playbook_dir }}/../src/mywebapp/"
     cmd: dotnet publish -c Release
   changed_when: false
