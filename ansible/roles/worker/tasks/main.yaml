@@ -86,7 +86,7 @@
       [Install]
       WantedBy=multi-user.target
     mode: '0644'
-  notify: Reload Systemd
+  notify: Reload systemd
 
 - name: Ensure the application service is enabled and running
   systemd:
