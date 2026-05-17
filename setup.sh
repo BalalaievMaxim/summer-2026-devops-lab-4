@@ -13,12 +13,15 @@ sudo apt-get update && sudo apt-get install terraform
 sudo add-apt-repository --yes --update ppa:ansible/ansible
 sudo apt-get install -y ansible
 
+# Надавання прав користувачу на використання libvirt
+sudo usermod -aG libvirt,kvm $USER
+
 # Створення пулу для libvirt
-sudo virsh pool-define-as --name default --type dir --target /var/lib/libvirt/images
-sudo virsh pool-start default
-sudo virsh pool-autostart default
-sudo virsh net-start default
-sudo virsh net-autostart default
+sg libvirt -c "virsh pool-define-as --name default --type dir --target /var/lib/libvirt/images"
+sg libvirt -c "virsh pool-start default"
+sg libvirt -c "virsh pool-autostart default"
+sg libvirt -c "virsh net-start default"
+sg libvirt -c "virsh net-autostart default"
 
 echo "Setup completed successfully!"
 echo "You can now run Terraform and Ansible"
