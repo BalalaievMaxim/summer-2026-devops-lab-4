@@ -9,7 +9,7 @@
 
 Встановлення пакетів
 ```bash
-sudo apt-get install -y gnupg software-properties-common curl wget qemu-system-x86 libvirt-daemon-system libvirt-clients bridge-utils genisoimage ansible-core dotnet-sdk-10.0
+sudo apt-get install -y gnupg software-properties-common curl wget qemu-system-x86 libvirt-daemon-system libvirt-clients bridge-utils genisoimage dotnet-sdk-10.0
 ```
 
 Встановлення Terraform
@@ -17,6 +17,12 @@ sudo apt-get install -y gnupg software-properties-common curl wget qemu-system-x
 wget -O- https://apt.releases.hashicorp.com/gpg | gpg --dearmor | sudo tee /usr/share/keyrings/hashicorp-archive-keyring.gpg > /dev/null
 echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
 sudo apt-get update && sudo apt-get install terraform
+```
+
+Встановлення Ansible
+```bash
+sudo add-apt-repository --yes --update ppa:ansible/ansible
+sudo apt-get install -y ansible
 ```
 
 Створення пулу для libvirt
