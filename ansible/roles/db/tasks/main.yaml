@@ -28,16 +28,23 @@
     state: started
     enabled: yes
 
+- name: Create PostgreSQL user with login access
+  postgresql_user:
+    name: postgres
+    password: "postgres_secure_password"
+    state: present
+  become_user: postgres
+
 - name: Create PostgreSQL database
   postgresql_db:
     name: mywebappdb
     login_user: postgres
   become_user: postgres
 
-- name: Create PostgreSQL user with privileges
-  postgresql_user:
+- name: Grant all privileges on database to user
+  postgresql_privs:
     db: mywebappdb
-    name: postgres
-    password: "postgres_secure_password"
-    priv: "ALL"
+    privs: ALL
+    type: database
+    roles: postgres
   become_user: postgres
