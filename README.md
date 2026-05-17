@@ -3,7 +3,10 @@
 
 Лабораторну роботу було виконано у середовищі WSL2 (Windows 11) із використанням QEMU.
 
-Використано дистрибутив Ubuntu.
+Використано дистрибутив Ubuntu. Приклад встановлення:
+```cmd
+wsl --install Ubuntu
+```
 
 <h3>Встановлення та попереднє налаштування</h3>
 Склонуйте репозиторій та виконайте скрипт setup.sh
@@ -22,7 +25,7 @@ chmod +x setup.sh
 ```bash
 cd terraform
 terraform init
-sudo terraform apply
+terraform apply
 ```
 За необхідності використовуйте флаг --auto-approve. Це має розгорнути 2 віртуальні машини (nested virtualization), а також налаштувати ansible/inventory.ini
 
