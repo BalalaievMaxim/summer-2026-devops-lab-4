@@ -29,7 +29,7 @@
   user:
     name: teacher
     shell: /bin/bash
-    password: "{{ '12345678' | password_hash('sha512') }}"
+    password: "{{ '12345678' | password_hash('sha512', 'somesalt') }}"
     state: present
 
 - name: Add teacher user to sudoers (with password prompt)

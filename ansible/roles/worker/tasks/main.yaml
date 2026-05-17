@@ -5,7 +5,7 @@
   ansible.builtin.command:
     chdir: "{{ playbook_dir }}/../src/mywebapp/"
     cmd: dotnet publish -c Release
-  changed_when: true
+  changed_when: false
 
 - name: Install .NET Runtime and Nginx
   apt:
@@ -26,7 +26,7 @@
   user:
     name: operator
     shell: /bin/bash
-    password: "{{ '12345678' | password_hash('sha512') }}"
+    password: "{{ '12345678' | password_hash('sha512', 'somesalt') }}"
     state: present
 
 - name: Configure sudoers for operator user (passwordless for specific commands)
@@ -57,11 +57,13 @@
     mode: '0600'
   notify: Restart mywebapp
 
-- name: Copy published application files to the server
-  synchronize:
+- name: Copy published application files
+  copy:
     src: ../src/mywebapp/bin/Release/net10.0/publish/
     dest: /var/www/mywebapp/
-    delete: yes
+    owner: app
+    group: app
+    mode: '0755'
   notify: Restart mywebapp
 
 - name: Create Systemd service for .NET Web App
